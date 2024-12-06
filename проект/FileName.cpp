@@ -77,6 +77,10 @@ int main()
 	delete[]nameArr;
 	delete[]countArr;
 	delete[]priceArr;
+	delete[]totalPriceCheckArr;
+	delete[]countCheckArr;
+	delete[]countCheckArr;
+	delete[]priceCheckArr;
 
 	аминь;
 }
@@ -1102,7 +1106,7 @@ void Selling()
 {
 	std::string choose, chooseID, chooseCount;
 	bool isFirst = true; 
-	int id{}, count;
+	int id{}, count{};
 	while (true)
 	{
 		system("cls");
@@ -1110,6 +1114,7 @@ void Selling()
 		Getline(choose);
 		if (choose == "1")
 		{
+			isFirst = true;
 			delete[]totalPriceCheckArr;
 			delete[]countCheckArr;
 			delete[]countCheckArr;
@@ -1151,6 +1156,7 @@ void Selling()
 									priceCheckArr[checkSize - 1] = priceArr[id - 1];
 									totalPriceCheckArr[checkSize - 1] = count * priceArr[id - 1];
 									isFirst = false;
+									//удаление склада
 								}
 								else
 								{
