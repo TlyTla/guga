@@ -3,6 +3,7 @@
 #define аминь return 0;
 #include<string>
 #include<iomanip>
+#include<cstdlib>
 
 //аки
 int userCount = 2;
@@ -56,6 +57,11 @@ void DeleteEmployee();
 
 void Selling();
 void AddNewCheckSize();
+void PrintCheck(double &totalSum);
+
+void Income();
+
+bool CloseShift();
 
 
 
@@ -69,6 +75,7 @@ int main()
 {
 	SetConsoleCP(1251);
 	SetConsoleOutputCP(1251);
+	srand(time(NULL));
 
 	Start();
 	delete[]loginArr;
@@ -87,6 +94,7 @@ int main()
 
 void Start()
 {
+	
 	std::cout << "\t\tPoint\n\n";
 
 
@@ -234,6 +242,7 @@ void ShowAdminMenu()
 		else if (choose == "2")
 		{
 			ShowStorage();
+			system("pause");
 		}
 		else if (choose == "3")
 		{
@@ -257,11 +266,14 @@ void ShowAdminMenu()
 		}
 		else if (choose == "8")
 		{
-
+			Income();
 		}
 		else if (choose == "0")
 		{
-			break;
+			if (CloseShift())
+			{
+				break;
+			}
 		}
 		else
 		{
@@ -288,11 +300,12 @@ void ShowUserMenu()
 		std::getline(std::cin, choose, '\n');
 		if (choose == "1")
 		{
-
+			Selling();
 		}
 		else if (choose == "2")
 		{
 			ShowStorage();
+			system("pause");
 		}
 		else if (choose == "3")
 		{
@@ -304,11 +317,14 @@ void ShowUserMenu()
 		}
 		else if (choose == "5")
 		{
-
+			Income();
 		}
 		else if (choose == "0")
 		{
-			break;
+			if (CloseShift())
+			{
+				break;
+			}
 		}
 		else
 		{
@@ -1104,9 +1120,11 @@ void DeleteEmployee()
 
 void Selling()
 {
-	std::string choose, chooseID, chooseCount;
+	std::string choose, chooseID, chooseCount, choosePay, money;
 	bool isFirst = true; 
 	int id{}, count{};
+	double totalSum{};
+	
 	while (true)
 	{
 		system("cls");
@@ -1114,12 +1132,14 @@ void Selling()
 		Getline(choose);
 		if (choose == "1")
 		{
+			totalSum = 0;
 			isFirst = true;
+
 			delete[]totalPriceCheckArr;
-			delete[]countCheckArr;
+			delete[]nameCheckArr;
 			delete[]countCheckArr;
 			delete[]priceCheckArr;
-
+		
 			checkSize = 1;
 
 			totalPriceCheckArr = new double[size];
@@ -1156,7 +1176,9 @@ void Selling()
 									priceCheckArr[checkSize - 1] = priceArr[id - 1];
 									totalPriceCheckArr[checkSize - 1] = count * priceArr[id - 1];
 									isFirst = false;
-									//удаление склада
+									//удаление из склада
+									countArr[id - 1] -= count;
+									totalSum += count * priceArr[id - 1];
 								}
 								else
 								{
@@ -1165,7 +1187,10 @@ void Selling()
 									countCheckArr[checkSize - 1] = count;
 									priceCheckArr[checkSize - 1] = priceArr[id - 1];
 									totalPriceCheckArr[checkSize - 1] = count * priceArr[id - 1];
+									countArr[id - 1] -= count;
+									totalSum += count * priceArr[id - 1];
 								}
+								Sleep(600);
 							}
 							else
 							{
@@ -1194,6 +1219,68 @@ void Selling()
 			if (!isFirst)
 			{
 				//принт чека
+				PrintCheck(totalSum);
+
+				while (true)
+				{
+					std::cout << "Выберите способ оплаты\n1 - Наличные\n2 - Безналичный\nВвод: ";
+					Getline(choosePay);
+					if (choosePay == "1")
+					{
+						std::cout << "Введите кол-во наличных: ";
+						Getline(money);
+						if (IsNumber(money))
+						{
+							if (std::stod(money) >= totalSum || std::stod(money) - totalSum <= cash)
+							{
+								std::cout << "\nОплата прошла успешно\n";
+								std::cout << "Ваша сдача: " << std::stod(money) - totalSum << "\n";
+								cash -= std::stod(money) - totalSum;
+								cash += std::stod(money);
+								cashMoney += std::stod(money);
+								Sleep(1500);
+								break;
+							}
+							else if(std::stod(money) < totalSum)
+							{
+								std::cout <<"\nНедостаточно средств\n";
+								Sleep(1000);
+							}
+							else
+							{
+								std::cout << "\nВ кассе недостаточно средств для сдачи\n";
+								Sleep(1000);
+							}
+						}
+						else
+						{
+							std::cout << "\nОшибка ввода\n";
+							Sleep(1000);
+						}
+					}
+					else if (choosePay == "2")
+					{
+						system("cls");
+						std::cout << "Приложите карту\n";
+						std::cout << "Соединение с банком\n";
+						for (int i = 0; i < rand() % 5 + 3; i++)
+						{
+							std::cout << ". "; 
+							Sleep(750);
+						}
+						std::cout << "\nСоединение успешно\n";
+						std::cout << "\nОплата прошла успешно\n";
+						webMoney += totalSum;
+						Sleep(1500);
+						break;
+					}
+					else
+					{
+						std::cout << "\nОшибка ввода\n";
+						Sleep(1000);
+					}
+				}
+
 			}
 		}
 		else if (choose == "0")
@@ -1203,7 +1290,7 @@ void Selling()
 		else
 		{
 			std::cout << "\nОшибка ввода\n";
-			Sleep(800);
+			Sleep(1000);
 		}
 	}
 }
@@ -1216,7 +1303,7 @@ void AddNewCheckSize()
 	double* tempPrice = new double[checkSize];
 	std::string* tempName = new std::string[checkSize];
 
-	for (int i = 0; i < size; i++)
+	for (int i = 0; i < checkSize; i++)
 	{
 		tempTotalPrice[i] = totalPriceCheckArr[i];
 		tempCount[i] = countCheckArr[i];
@@ -1225,16 +1312,16 @@ void AddNewCheckSize()
 	}
 
 	delete[]totalPriceCheckArr;
-	delete[]countCheckArr;
+	delete[]nameCheckArr;
 	delete[]countCheckArr;
 	delete[]priceCheckArr;
 
 	checkSize++;
 
-	totalPriceCheckArr = new double[size];
-	countCheckArr = new int[size];
-	priceCheckArr = new double[size];
-	nameCheckArr = new std::string[size];
+	totalPriceCheckArr = new double[checkSize];
+	countCheckArr = new int[checkSize];
+	priceCheckArr = new double[checkSize];
+	nameCheckArr = new std::string[checkSize];
 
 	for (int i = 0; i < checkSize - 1; i++)
 	{
@@ -1248,4 +1335,51 @@ void AddNewCheckSize()
 	delete[]tempCount;
 	delete[]tempPrice;
 	delete[]tempName;
+}
+
+void PrintCheck(double &totalSum)
+{	
+	std::cout << "N\t" << std::left << std::setw(30) << "Название" << "\tЦена за ед\tКол - во\tИтого\n";
+	for (int i = 0; i < checkSize; i++)
+	{
+		std::cout << "N" << i + 1 << " \t" << std::left << std::setw(30) << nameCheckArr[i]
+			<< "\t" << priceCheckArr[i] << "\t\t*  " << countCheckArr[i]
+			<< "\t\t" << totalPriceCheckArr[i] << "\n";
+	}
+	std::cout << "\nИтоговая сумма: " << totalSum << "\n\n";
+}
+
+void Income()
+{
+	std::cout << "Деньги в кассе: " << cash << "\n";
+	std::cout << "Деньги за наличную плату: " << cashMoney << "\n";
+	std::cout << "Деньги за Безналичную плату: " << webMoney << "\n";
+	std::cout << "Итоговая прибыль: " << cashMoney + webMoney << "\n\n";
+	system("pause");
+}
+
+bool CloseShift()
+{
+	std::string choose;
+	while (true)
+	{
+		system("cls");
+		std::cout << "1 - Закрыть смену\n0 - Отмена\n\nВвывод: ";
+		Getline(choose);
+		if (choose == "1")
+		{
+			Income();
+			std::cout << "\nСмена закрыта.";
+			system("pause");
+			return true;
+		}
+		else if (true)
+		{
+			return false;
+		}
+		else
+		{
+			std::cout << "\nОшибка ввода\n";
+		}
+	}
 }
